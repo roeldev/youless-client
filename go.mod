@@ -1,4 +1,4 @@
-module github.com/project-casa/youless-client
+module github.com/roeldev/youless-client
 
 go 1.20
 
