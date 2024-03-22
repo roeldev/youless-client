@@ -18,7 +18,6 @@ import (
 	urlpkg "net/url"
 	"strings"
 	"sync/atomic"
-	"time"
 )
 
 const (
@@ -36,21 +35,6 @@ type UnexpectedResponseError struct {
 
 func (e *UnexpectedResponseError) Error() string {
 	return fmt.Sprintf("unexpected response status code: %d, %s", e.StatusCode, http.StatusText(e.StatusCode))
-}
-
-// Config is the configuration for a Client. It can be unmarshalled from json,
-// yaml, env or flag values.
-type Config struct {
-	// BaseURL of the device.
-	BaseURL string `json:"base_url" yaml:"baseUrl" default:"http://youless"`
-	// Name of the device, is optional and used for logging/debugging.
-	Name string `json:"name" yaml:"name" default:"YouLess"`
-	// Timeout specifies a time limit for requests made by the http.Client used
-	// by Client.
-	Timeout time.Duration `json:"timeout" yaml:"timeout" default:"5s"`
-
-	Password     string `json:"password" yaml:"password"`
-	PasswordFile string `json:"password_file" yaml:"passwordFile"`
 }
 
 // Client connects with the Youless device and is able to read logged values.
