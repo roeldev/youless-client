@@ -7,10 +7,11 @@ package youless
 import (
 	"context"
 	"fmt"
-	"github.com/go-pogo/errors"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/go-pogo/errors"
 )
 
 type Unit string

@@ -5,11 +5,12 @@
 package youless
 
 import (
+	"net/http"
+
 	"github.com/go-pogo/errors"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
-	"net/http"
 )
 
 const ErrApplyOption errors.Msg = "failed to apply option"

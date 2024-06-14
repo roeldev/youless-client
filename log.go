@@ -5,9 +5,10 @@
 package youless
 
 import (
+	"net/http"
+
 	"github.com/rs/zerolog"
 	"golang.org/x/net/context"
-	"net/http"
 )
 
 type Logger interface {

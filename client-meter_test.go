@@ -5,9 +5,10 @@
 package youless
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestReadingResponse_GasTime(t *testing.T) {

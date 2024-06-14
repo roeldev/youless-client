@@ -5,8 +5,9 @@
 package youless
 
 import (
-	"github.com/go-pogo/errors"
 	"time"
+
+	"github.com/go-pogo/errors"
 )
 
 const (

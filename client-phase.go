@@ -4,7 +4,9 @@
 
 package youless
 
-import "golang.org/x/net/context"
+import (
+	"golang.org/x/net/context"
+)
 
 // https://community.home-assistant.io/t/youless-sensors-for-detailed-information-per-phase/433419
 // https://domoticx.com/p1-poort-slimme-meter-hardware/

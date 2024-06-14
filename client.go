@@ -6,20 +6,22 @@ package youless
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"github.com/go-pogo/errors"
-	"github.com/goccy/go-json"
-	"go.opentelemetry.io/otel/codes"
-	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
-	"go.opentelemetry.io/otel/trace"
-	"golang.org/x/sync/singleflight"
 	"io"
 	"net/http"
 	urlpkg "net/url"
 	"strings"
 	"sync/atomic"
+
+	"github.com/go-pogo/errors"
+	"go.opentelemetry.io/otel/codes"
+	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
+	"go.opentelemetry.io/otel/trace"
+	"golang.org/x/sync/singleflight"
 )
 
+//goland:noinspection GoUnusedConst
 const (
 	AttrDeviceMAC      = "youless.device.mac"
 	AttrDeviceModel    = "youless.device.model"
