@@ -12,7 +12,7 @@ import (
 	"net/http"
 )
 
-const OptionError errors.Kind = "option error"
+const ErrApplyOption errors.Msg = "failed to apply option"
 
 type Option func(c *Client) error
 

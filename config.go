@@ -11,8 +11,7 @@ import (
 
 const (
 	ErrInvalidBaseURL errors.Msg = "invalid base url"
-
-	ConfigValidationError errors.Kind = "config validation error"
+	ErrInvalidConfig  errors.Msg = "invalid config"
 )
 
 // Config is the configuration for a Client. It can be unmarshalled from json,
@@ -34,7 +33,7 @@ type Config struct {
 
 func (c Config) Validate() error {
 	if c.BaseURL == "" {
-		return errors.WithKind(ErrInvalidBaseURL, ConfigValidationError)
+		return errors.Wrap(ErrInvalidBaseURL, ErrInvalidConfig)
 	}
 	return nil
 }

@@ -25,8 +25,8 @@ const (
 	AttrDeviceModel    = "youless.device.model"
 	AttrDeviceFirmware = "youless.device.firmware"
 
-	ErrPasswordRequired = "password required"
-	ErrInvalidPassword  = "invalid password"
+	ErrPasswordRequired errors.Msg = "password required"
+	ErrInvalidPassword  errors.Msg = "invalid password"
 )
 
 type UnexpectedResponseError struct {
@@ -75,7 +75,7 @@ func (c *Client) With(opts ...Option) error {
 		}
 	}
 	if err != nil {
-		return errors.WithKind(err, OptionError)
+		return errors.Wrap(err, ErrApplyOption)
 	}
 	return nil
 }
