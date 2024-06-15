@@ -10,6 +10,15 @@ import (
 	"time"
 )
 
+type UnsupportedIntervalError struct {
+	Utility  Utility
+	Interval Interval
+}
+
+func (e UnsupportedIntervalError) Error() string {
+	return fmt.Sprintf("utility %s does not support interval `%s`", e.Utility, e.Interval.String())
+}
+
 type Interval uint32
 
 const (
@@ -23,8 +32,9 @@ func (i Interval) Delta() uint32 {
 	switch i {
 	case PerMin, Per10min, PerHour, PerDay:
 		return uint32(i)
+	default:
+		panic(invalidInterval(i))
 	}
-	panic(invalidInterval(i))
 }
 
 func (i Interval) Duration() time.Duration {
@@ -37,8 +47,9 @@ func (i Interval) Duration() time.Duration {
 		return time.Hour
 	case PerDay:
 		return 24 * time.Hour
+	default:
+		panic(invalidInterval(i))
 	}
-	panic(invalidInterval(i))
 }
 
 func (i Interval) Param() rune {
@@ -51,10 +62,12 @@ func (i Interval) Param() rune {
 		return 'd'
 	case PerDay:
 		return 'm'
+	default:
+		panic(invalidInterval(i))
 	}
-	panic(invalidInterval(i))
 }
 
+// The String representation of Interval.
 func (i Interval) String() string {
 	switch i {
 	case PerMin:
@@ -65,20 +78,11 @@ func (i Interval) String() string {
 		return "hour"
 	case PerDay:
 		return "day"
+	default:
+		panic(invalidInterval(i))
 	}
-
-	panic(invalidInterval(i))
 }
 
 func invalidInterval(i Interval) string {
 	return strconv.FormatUint(uint64(i), 10) + " is not a valid youless.Interval"
-}
-
-type UnsupportedIntervalError struct {
-	Utility  Utility
-	Interval Interval
-}
-
-func (e UnsupportedIntervalError) Error() string {
-	return fmt.Sprintf("utility %s does not support interval `%s`", e.Utility, e.Interval.String())
 }
