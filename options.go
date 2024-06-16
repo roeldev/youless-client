@@ -17,8 +17,8 @@ const ErrApplyOption errors.Msg = "failed to apply option"
 
 type Option func(c *Client) error
 
-// WithHttpClient sets the underlying http.Client for the client.
-func WithHttpClient(client http.Client) Option {
+// WithHTTPClient sets the underlying http.Client for the client.
+func WithHTTPClient(client http.Client) Option {
 	return func(c *Client) error {
 		c.client = client
 		c.client.CheckRedirect = c.fetchCookie(c.client.CheckRedirect)
