@@ -14,9 +14,9 @@ type DeviceResponse struct {
 	MAC      string `json:"mac"`
 }
 
-func (c *Client) GetDevice(ctx context.Context) (DeviceResponse, error) {
+func (api *apiRequester) GetDevice(ctx context.Context) (DeviceResponse, error) {
 	var res DeviceResponse
-	err := c.get(ctx, "get-device", "d", &res)
+	err := api.Request(withFuncName(ctx, "GetDevice"), "d", &res)
 	return res, err
 }
 

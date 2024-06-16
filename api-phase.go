@@ -42,9 +42,9 @@ type PhaseReadingResponse struct {
 	Voltage3 float64 `json:"v3"`
 }
 
-func (c *Client) GetPhaseReading(ctx context.Context) (PhaseReadingResponse, error) {
+func (api *apiRequester) GetPhaseReading(ctx context.Context) (PhaseReadingResponse, error) {
 	var res PhaseReadingResponse
-	if err := c.get(ctx, "get-phase-reading", "f", &res); err != nil {
+	if err := api.Request(withFuncName(ctx, "GetPhaseReading"), "f", &res); err != nil {
 		return PhaseReadingResponse{}, err
 	}
 	return res, nil

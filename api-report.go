@@ -14,8 +14,6 @@ import (
 	"github.com/go-pogo/errors"
 )
 
-type Unit string
-
 //goland:noinspection GoUnusedConst
 const (
 	Watt       Unit = "Watt"
@@ -24,34 +22,42 @@ const (
 	CubicMeter Unit = "m3"
 )
 
-type Report struct {
+type Unit string
+
+func (u Unit) String() string { return string(u) }
+
+type ReportResponse struct {
 	Unit      Unit     `json:"un"`
 	Timestamp string   `json:"tm"`
 	Interval  Interval `json:"dt"`
 	RawValues []string `json:"val"`
 }
 
-func (c *Client) GetReport(ctx context.Context, u Utility, i Interval, p uint) (Report, error) {
+func (api *apiRequester) GetReport(ctx context.Context, u Utility, i Interval, page uint) (ReportResponse, error) {
 	if i == PerMin && (u == Gas || u == Water) {
-		return Report{}, errors.WithStack(&UnsupportedIntervalError{
+		return ReportResponse{}, errors.WithStack(&UnsupportedIntervalError{
 			Utility:  u,
 			Interval: i,
 		})
 	}
 
-	var res Report
-	err := c.get(ctx, "get-report", fmt.Sprintf("%s?%c=%d&f=j", string(u), i.Param(), p), &res)
+	var res ReportResponse
+	err := api.Request(
+		withFuncName(ctx, "GetReport"),
+		fmt.Sprintf("%s?%c=%d&f=j", u.Endpoint(), i.Param(), page),
+		&res,
+	)
 	return res, err
 }
 
 const ReportTimeLayout = "2006-01-02T15:04:05"
 
-func (r Report) Time() time.Time {
+func (r ReportResponse) Time() time.Time {
 	t, _ := time.Parse(ReportTimeLayout, r.Timestamp)
 	return t
 }
 
-func (r Report) TimeOfValue(i uint) time.Time {
+func (r ReportResponse) TimeOfValue(i uint) time.Time {
 	if i == 0 {
 		return r.Time()
 	}
@@ -73,7 +79,7 @@ func (tv TimedValue) String() string {
 	return strconv.FormatUint(tv.Value, 10)
 }
 
-func (r Report) TimedValues() ([]TimedValue, error) {
+func (r ReportResponse) TimedValues() ([]TimedValue, error) {
 	end := len(r.RawValues)
 	res := make([]TimedValue, 0, end)
 	end -= 1

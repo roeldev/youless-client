@@ -58,9 +58,9 @@ type MeterReadingResponse struct {
 	Water float64 `json:"wtr"`
 }
 
-func (c *Client) GetMeterReading(ctx context.Context) (MeterReadingResponse, error) {
+func (api *apiRequester) GetMeterReading(ctx context.Context) (MeterReadingResponse, error) {
 	var res []MeterReadingResponse
-	if err := c.get(ctx, "get-meter-reading", "e", &res); err != nil {
+	if err := api.Request(withFuncName(ctx, "GetMeterReading"), "e", &res); err != nil {
 		return MeterReadingResponse{}, err
 	}
 	return res[0], nil

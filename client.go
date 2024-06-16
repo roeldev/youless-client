@@ -39,33 +39,39 @@ func (e *UnexpectedResponseError) Error() string {
 	return fmt.Sprintf("unexpected response status code: %d, %s", e.StatusCode, http.StatusText(e.StatusCode))
 }
 
-// Client connects with the Youless device and is able to read logged values.
-// Its zero value is ready to be used once BaseURL is set.
-// By default, it uses a default http.Client, which can be overridden via
-// WithHTTPClient.
+var _ APIRequester = (*Client)(nil)
+
+// Client is an APIRequester which connects with the Youless device and is able
+// to request data from its api. Its zero value is ready to be used once
+// Config.BaseURL is set.
+// By default, it uses http.DefaultClient as http.Client, which can be replaced
+// by calling NewClient with a WithHTTPClient Option.
 type Client struct {
 	Config
 
-	log    Logger
+	apiRequester
+	// log requests using Logger
+	log Logger
+	// tracer used to created trace spans
 	tracer trace.Tracer
-
 	// client used to send and receive http requests
 	client http.Client
 	// group makes sure multiple request to the same url are only executed once
 	group singleflight.Group
-
+	// cookie contains the http.Cookie received after authenticating
 	cookie atomic.Pointer[http.Cookie]
 }
 
 // NewClient creates a new Client with Config and applies any provided Option(s).
 func NewClient(conf Config, opts ...Option) (*Client, error) {
-	c := &Client{Config: conf}
+	c := Client{Config: conf}
+	c.apiRequester.Requester = &c
 	c.client.CheckRedirect = c.fetchCookie(c.client.CheckRedirect)
 
 	if err := c.With(opts...); err != nil {
 		return nil, err
 	}
-	return c, nil
+	return &c, nil
 }
 
 // With applies the provided Option(s) to the Client.
@@ -83,21 +89,21 @@ func (c *Client) With(opts ...Option) error {
 }
 
 func (c *Client) url(p string) string {
-	if strings.HasSuffix(c.BaseURL, "/") {
-		p = c.BaseURL + p
+	if strings.HasSuffix(c.Config.BaseURL, "/") {
+		p = c.Config.BaseURL + p
 	} else {
-		p = c.BaseURL + "/" + p
+		p = c.Config.BaseURL + "/" + p
 	}
 	return p
 }
 
-func (c *Client) get(ctx context.Context, name, page string, res any) (err error) {
+func (c *Client) Request(ctx context.Context, page string, out any) (err error) {
 	if c.log == nil {
 		c.log = NopLogger()
 	}
 
 	var span trace.Span
-	if c.tracer != nil {
+	if name, ok := ctx.Value(apiFuncName{}).(string); ok && c.tracer != nil {
 		ctx, span = c.tracer.Start(ctx, name,
 			trace.WithSpanKind(trace.SpanKindClient),
 			trace.WithAttributes(
@@ -112,7 +118,6 @@ func (c *Client) get(ctx context.Context, name, page string, res any) (err error
 				span.RecordError(err)
 				span.SetStatus(codes.Error, err.Error())
 			}
-			span.End()
 		}()
 	}
 
@@ -123,7 +128,7 @@ func (c *Client) get(ctx context.Context, name, page string, res any) (err error
 			return nil, errors.WithStack(err)
 		}
 
-		if c.Password != "" {
+		if c.Config.Password != "" {
 			cookie := c.cookie.Load()
 			if cookie != nil {
 				req.AddCookie(cookie)
@@ -135,8 +140,8 @@ func (c *Client) get(ctx context.Context, name, page string, res any) (err error
 			}
 		}
 
-		c.log.Request(ctx, c.Name, url, false)
-		c.client.Timeout = c.Timeout
+		c.log.LogRequest(ctx, c.Config.Name, url, false)
+		c.client.Timeout = c.Config.Timeout
 
 		r, err := c.client.Do(req)
 		if err != nil {
@@ -163,13 +168,19 @@ func (c *Client) get(ctx context.Context, name, page string, res any) (err error
 
 	c.group.Forget(page)
 	if shared {
-		c.log.Request(ctx, c.Name, url, true)
+		c.log.LogRequest(ctx, c.Config.Name, url, true)
 	}
 	if err != nil {
 		return err
 	}
 
-	if err = json.Unmarshal(b.([]byte), &res); err != nil {
+	if o, ok := out.(*[]byte); ok {
+		// skip unmarshalling, return as raw bytes
+		*o = b.([]byte)
+		return nil
+	}
+
+	if err = json.Unmarshal(b.([]byte), &out); err != nil {
 		err = errors.WithStack(err)
 		return err
 	}
@@ -184,8 +195,8 @@ func (c *Client) auth(ctx context.Context) (err error) {
 		ctx, span = c.tracer.Start(ctx, name,
 			trace.WithSpanKind(trace.SpanKindClient),
 			trace.WithAttributes(
-				semconv.RPCService(c.Name),
-				semconv.ServerSocketDomain(c.BaseURL),
+				semconv.RPCService(c.Config.Name),
+				semconv.ServerSocketDomain(c.Config.BaseURL),
 			),
 		)
 		defer func() {
@@ -203,15 +214,15 @@ func (c *Client) auth(ctx context.Context) (err error) {
 		req, err := http.NewRequestWithContext(
 			ctx,
 			http.MethodPost,
-			c.BaseURL,
-			strings.NewReader(urlpkg.Values{"w": {c.Password}}.Encode()),
+			c.Config.BaseURL,
+			strings.NewReader(urlpkg.Values{"w": {c.Config.Password}}.Encode()),
 		)
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}
 
-		c.log.Request(ctx, c.Name, c.BaseURL, false)
-		c.client.Timeout = c.Timeout
+		c.log.LogRequest(ctx, c.Config.Name, c.Config.BaseURL, false)
+		c.client.Timeout = c.Config.Timeout
 
 		res, err := c.client.Do(req)
 		if err != nil {
@@ -232,7 +243,7 @@ func (c *Client) auth(ctx context.Context) (err error) {
 
 	c.group.Forget(name)
 	if shared {
-		c.log.Request(ctx, c.Name, c.BaseURL, true)
+		c.log.LogRequest(ctx, c.Config.Name, c.Config.BaseURL, true)
 	}
 	if err != nil {
 		err = errors.WithStack(err)
@@ -248,7 +259,7 @@ func (c *Client) fetchCookie(next checkRedirectFunc) checkRedirectFunc {
 		if req.Response != nil {
 			for _, cookie := range req.Response.Cookies() {
 				if cookie.Name == "tk" {
-					c.log.FetchedCookie(c.Name, *cookie)
+					c.log.LogFetchedCookie(c.Config.Name, *cookie)
 					c.cookie.Store(cookie)
 					return http.ErrUseLastResponse
 				}
