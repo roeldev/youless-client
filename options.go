@@ -21,7 +21,7 @@ type Option func(c *Client) error
 func WithHTTPClient(client http.Client) Option {
 	return func(c *Client) error {
 		c.client = client
-		c.client.CheckRedirect = c.fetchCookie(c.client.CheckRedirect)
+		c.client.CheckRedirect = c.fetchAuthCookie(c.client.CheckRedirect)
 		return nil
 	}
 }

@@ -5,6 +5,7 @@
 package youless
 
 import (
+	"strings"
 	"time"
 
 	"github.com/go-pogo/errors"
@@ -37,4 +38,13 @@ func (c Config) Validate() error {
 		return errors.Wrap(ErrInvalidBaseURL, ErrInvalidConfig)
 	}
 	return nil
+}
+
+func (c Config) url(p string) string {
+	if strings.HasSuffix(c.BaseURL, "/") {
+		p = c.BaseURL + p
+	} else {
+		p = c.BaseURL + "/" + p
+	}
+	return p
 }

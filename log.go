@@ -12,17 +12,17 @@ import (
 )
 
 type Logger interface {
-	LogRequest(ctx context.Context, clientName, url string, shared bool)
-	LogFetchedCookie(clientName string, cookie http.Cookie)
+	LogClientRequest(ctx context.Context, clientName, url string, shared bool)
+	LogFetchAuthCookie(clientName string, cookie http.Cookie)
 }
 
 func NopLogger() Logger { return new(nopLogger) }
 
 type nopLogger struct{}
 
-func (nopLogger) LogRequest(_ context.Context, _, _ string, _ bool) {}
+func (nopLogger) LogClientRequest(_ context.Context, _, _ string, _ bool) {}
 
-func (nopLogger) LogFetchedCookie(_ string, _ http.Cookie) {}
+func (nopLogger) LogFetchAuthCookie(_ string, _ http.Cookie) {}
 
 type clientLogger struct{ zl zerolog.Logger }
 
@@ -30,17 +30,17 @@ func NewLogger(zl zerolog.Logger) Logger {
 	return &clientLogger{zl: zl}
 }
 
-func (l *clientLogger) LogRequest(_ context.Context, name, url string, shared bool) {
+func (l *clientLogger) LogClientRequest(_ context.Context, name, url string, shared bool) {
 	l.zl.Debug().
 		Str("client", name).
 		Str("url", url).
 		Bool("shared", shared).
-		Msg("client request")
+		Msg("client groupRequest")
 }
 
-func (l *clientLogger) LogFetchedCookie(name string, cookie http.Cookie) {
+func (l *clientLogger) LogFetchAuthCookie(name string, cookie http.Cookie) {
 	l.zl.Info().
 		Str("client", name).
-		Str("cookie", cookie.Name).
-		Msg("fetched cookie")
+		Str("cookie", cookie.String()).
+		Msg("fetched auth cookie")
 }
