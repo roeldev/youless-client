@@ -164,7 +164,7 @@ func (c *Client) Authorize(ctx context.Context, password string) (_ http.Cookie,
 			return nil, errors.New(ErrInvalidPassword)
 		}
 		if res.StatusCode > 400 {
-			return nil, errors.New(&UnexpectedResponseError{
+			return nil, errors.WithStack(&UnexpectedResponseError{
 				StatusCode: res.StatusCode,
 			})
 		}
@@ -238,7 +238,7 @@ func (c *Client) Request(ctx context.Context, page string, out any) (err error) 
 			return nil, errors.New(ErrPasswordRequired)
 		}
 		if res.StatusCode > 400 {
-			return nil, errors.New(&UnexpectedResponseError{
+			return nil, errors.WithStack(&UnexpectedResponseError{
 				StatusCode: res.StatusCode,
 			})
 		}
