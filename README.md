@@ -22,7 +22,7 @@ Client for YouLess energy monitor
 [doc-url]: https://pkg.go.dev/github.com/roeldev/youless-client
 
 
-Package `youless`.
+Package `youless` contains a client which can read from the api of a _YouLess_ device.
 
 ```sh
 go get github.com/roeldev/youless-client
@@ -34,15 +34,15 @@ import "github.com/roeldev/youless-client"
 
 ### API
 
-| Method            | Endpoint | Description                 |
-|-------------------|----------|-----------------------------|
-| `GetDevice`       | /d       | Get device information      |
-| `GetMeterReading` | /e       | Get meter reading           |
-| `GetPhaseReading` | /f       | Get phase reading           |
-| `GetLog`          | /V       | Get report of Power utility |
-|                   | /W       | Get report of Gas utility   |
-|                   | /K       | Get report of Water utility |
-|                   | /Z       | Get report of S0 utility    |
+| Method            | Endpoint | Description                         |
+|-------------------|----------|-------------------------------------|
+| `GetDevice`       | /d       | Get device information              |
+| `GetMeterReading` | /e       | Get meter reading                   |
+| `GetPhaseReading` | /f       | Get phase reading                   |
+| `GetLog`          | /V       | Get report of `Electricity` utility |
+|                   | /W       | Get report of `Gas` utility         |
+|                   | /K       | Get report of `Water` utility       |
+|                   | /Z       | Get report of `S0` utility          |
 
 ### Utilities
 
