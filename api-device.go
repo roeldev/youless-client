@@ -19,15 +19,3 @@ func (api *apiRequester) GetDevice(ctx context.Context) (DeviceResponse, error) 
 	err := api.Request(withFuncName(ctx, "GetDevice"), "d", &res)
 	return res, err
 }
-
-//func NewDevicePoller(client *Client, callback func(ctx context.Context, data DeviceResponse)) *Poller[DeviceResponse] {
-//	return &Poller[DeviceResponse]{
-//		get: client.GetDevice,
-//		equals: func(old, new DeviceResponse) bool {
-//			return false
-//		},
-//		callback: callback,
-//		//channel:  ch, // ch chan youless.DeviceResponse
-//		Interval: 5 * time.Minute,
-//	}
-//}

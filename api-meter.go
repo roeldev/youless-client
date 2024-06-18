@@ -12,8 +12,14 @@ import (
 
 // MeterReadingResponse is the response from the /e endpoint. It is a
 // translation of a P1 telegram, with addition values, to JSON.
-// https://www.netbeheernederland.nl/_upload/Files/Slimme_meter_15_32ffe3cc38.pdf
 type MeterReadingResponse struct {
+	ElectricityReading
+	S0Reading
+	GasReading
+	WaterReading
+}
+
+type ElectricityReading struct {
 	// Timestamp is a unix timestamp of the last meter reading.
 	Timestamp int64 `json:"tm"`
 	// ElectricityImport1 is the meter reading of total imported low tariff
@@ -35,7 +41,9 @@ type MeterReadingResponse struct {
 	// Power is the current imported (or negative for exported) electricity
 	// power in Watt (Actueel vermogen).
 	Power int64 `json:"pwr"`
+}
 
+type S0Reading struct {
 	// S0Timestamp is a unix timestamp of the last S0 reading.
 	S0Timestamp int64 `json:"ts0"`
 	// S0Total is the total power in kWh measured by the S0 meter
@@ -44,18 +52,22 @@ type MeterReadingResponse struct {
 	// S0 is the current electricity power measured in Watt from the S0 meter
 	// (S0 vermogen).
 	S0 int64 `json:"ps0"`
+}
 
+type GasReading struct {
 	// GasTimestamp is a timestamp in format YYMMDDHHmm of the last gas meter
 	// reading.
 	GasTimestamp uint64 `json:"gts"`
-	// Gas is the meter reading of delivered gas (in m3) to client.
-	Gas float64 `json:"gas"`
+	// GasTotal is the meter reading of delivered gas (in m3) to client.
+	GasTotal float64 `json:"gas"`
+}
 
-	// WaterTimestamp is a timestamp in format YYMMDDHHmm of the last water meter
-	// reading.
+type WaterReading struct {
+	// WaterTimestamp is a timestamp in format YYMMDDHHmm of the last water
+	// meter reading.
 	WaterTimestamp uint64 `json:"wts"`
-	// Water is the meter reading of delivered water (in m3) to client.
-	Water float64 `json:"wtr"`
+	// WaterTotal is the meter reading of delivered water (in m3) to client.
+	WaterTotal float64 `json:"wtr"`
 }
 
 func (api *apiRequester) GetMeterReading(ctx context.Context) (MeterReadingResponse, error) {
@@ -66,26 +78,17 @@ func (api *apiRequester) GetMeterReading(ctx context.Context) (MeterReadingRespo
 	return res[0], nil
 }
 
-func (res MeterReadingResponse) Time() time.Time   { return time.Unix(res.Timestamp, 0) }
-func (res MeterReadingResponse) S0Time() time.Time { return time.Unix(res.S0Timestamp, 0) }
+func (r ElectricityReading) Time() time.Time { return time.Unix(r.Timestamp, 0) }
+func (r S0Reading) Time() time.Time          { return time.Unix(r.S0Timestamp, 0) }
 
 const DateTimeLayout = "0601021504"
 
-func (res MeterReadingResponse) GasTime() time.Time {
-	t, _ := time.Parse(DateTimeLayout, strconv.FormatUint(res.GasTimestamp, 10))
+func (r GasReading) Time() time.Time {
+	t, _ := time.Parse(DateTimeLayout, strconv.FormatUint(r.GasTimestamp, 10))
 	return t
 }
 
-func (res MeterReadingResponse) WaterTime() time.Time {
-	t, _ := time.Parse(DateTimeLayout, strconv.FormatUint(res.WaterTimestamp, 10))
+func (r WaterReading) Time() time.Time {
+	t, _ := time.Parse(DateTimeLayout, strconv.FormatUint(r.WaterTimestamp, 10))
 	return t
 }
-
-//func NewReadingPoller(client *Client, callback func(ctx context.Context, data MeterReadingResponse)) *Poller[MeterReadingResponse] {
-//	return &Poller[MeterReadingResponse]{
-//		get:      client.GetMeterReading,
-//		callback: callback,
-//		//channel:  ch, // ch chan youless.DeviceResponse
-//		Interval: 5 * time.Second,
-//	}
-//}
