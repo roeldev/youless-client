@@ -52,11 +52,11 @@ func (api *apiRequester) GetPhaseReading(ctx context.Context) (PhaseReadingRespo
 
 type PhaseReading struct {
 	// Current is the current imported electricity current in Ampere.
-	Current float64 `json:"i1"`
+	Current float64
 	// Power is the current imported electricity power in Watt.
-	Power int64 `json:"l1"`
+	Power int64
 	// Voltage is the current measured voltage.
-	Voltage float64 `json:"v1"`
+	Voltage float64
 }
 
 func (r PhaseReadingResponse) Phase1() PhaseReading {
