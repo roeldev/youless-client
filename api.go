@@ -4,7 +4,9 @@
 
 package youless
 
-import "golang.org/x/net/context"
+import (
+	"context"
+)
 
 // API is the interface containing all available api calls to the YouLess
 // device.
@@ -12,7 +14,7 @@ type API interface {
 	GetDevice(ctx context.Context) (DeviceResponse, error)
 	GetMeterReading(ctx context.Context) (MeterReadingResponse, error)
 	GetPhaseReading(ctx context.Context) (PhaseReadingResponse, error)
-	GetReport(ctx context.Context, u Utility, i Interval, page uint) (ReportResponse, error)
+	GetLog(ctx context.Context, u Utility, i Interval, page uint) (LogResponse, error)
 }
 
 // Requester requests and handles calls to a YouLess device.

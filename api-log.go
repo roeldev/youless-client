@@ -20,44 +20,52 @@ const (
 	KiloWatt   Unit = "kWh"
 	Liter      Unit = "L"
 	CubicMeter Unit = "m3"
+
+	ErrInvalidLogPage = "page cannot be <= 0; index starts at 1"
 )
 
 type Unit string
 
 func (u Unit) String() string { return string(u) }
 
-type ReportResponse struct {
+type LogResponse struct {
 	Unit      Unit     `json:"un"`
 	Timestamp string   `json:"tm"`
 	Interval  Interval `json:"dt"`
 	RawValues []string `json:"val"`
 }
 
-func (api *apiRequester) GetReport(ctx context.Context, u Utility, i Interval, page uint) (ReportResponse, error) {
+// GetLog retrieves the log data for the given Utility and Interval at the
+// provided page.
+// Note: the page index starts at 1 and not 0.
+func (api *apiRequester) GetLog(ctx context.Context, u Utility, i Interval, page uint) (LogResponse, error) {
 	if i == PerMin && (u == Gas || u == Water) {
-		return ReportResponse{}, errors.WithStack(&UnsupportedIntervalError{
+		return LogResponse{}, errors.WithStack(&UnsupportedIntervalError{
 			Utility:  u,
 			Interval: i,
 		})
 	}
+	if page <= 0 {
+		return LogResponse{}, errors.New(ErrInvalidLogPage)
+	}
 
-	var res ReportResponse
+	var res LogResponse
 	err := api.Request(
-		withFuncName(ctx, "GetReport"),
+		withFuncName(ctx, "GetLog"),
 		fmt.Sprintf("%s?%c=%d&f=j", u.Endpoint(), i.Param(), page),
 		&res,
 	)
 	return res, err
 }
 
-const ReportTimeLayout = "2006-01-02T15:04:05"
+const LogTimeLayout = "2006-01-02T15:04:05"
 
-func (r ReportResponse) Time() time.Time {
-	t, _ := time.Parse(ReportTimeLayout, r.Timestamp)
+func (r LogResponse) Time() time.Time {
+	t, _ := time.Parse(LogTimeLayout, r.Timestamp)
 	return t
 }
 
-func (r ReportResponse) TimeOfValue(i uint) time.Time {
+func (r LogResponse) TimeOfValue(i uint) time.Time {
 	if i == 0 {
 		return r.Time()
 	}
@@ -79,7 +87,7 @@ func (tv TimedValue) String() string {
 	return strconv.FormatUint(tv.Value, 10)
 }
 
-func (r ReportResponse) TimedValues() ([]TimedValue, error) {
+func (r LogResponse) TimedValues() ([]TimedValue, error) {
 	end := len(r.RawValues)
 	res := make([]TimedValue, 0, end)
 	end -= 1
