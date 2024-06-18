@@ -12,10 +12,10 @@ import (
 
 func TestUtility_Endpoint(t *testing.T) {
 	tests := map[Utility]string{
-		Power: "V",
-		Gas:   "W",
-		Water: "K",
-		S0:    "Z",
+		Electricity: "V",
+		Gas:         "W",
+		Water:       "K",
+		S0:          "Z",
 	}
 	for utility, want := range tests {
 		t.Run(string(utility), func(t *testing.T) {
@@ -31,7 +31,7 @@ func TestUtility_Endpoint(t *testing.T) {
 }
 
 func TestUtility_String(t *testing.T) {
-	tests := []Utility{Power, Gas, Water, S0}
+	tests := []Utility{Electricity, Gas, Water, S0}
 	for _, utility := range tests {
 		t.Run(string(utility), func(t *testing.T) {
 			assert.Equal(t, string(utility), utility.String())

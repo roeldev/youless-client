@@ -7,15 +7,16 @@ package youless
 type Utility string
 
 const (
-	Power Utility = "power"
-	Gas   Utility = "gas"
-	Water Utility = "water"
-	S0    Utility = "s0"
+	Electricity Utility = "electricity"
+	Gas         Utility = "gas"
+	Water       Utility = "water"
+	S0          Utility = "s0"
 )
 
+// Endpoint page of the utility's data on the YouLess' api.
 func (s Utility) Endpoint() string {
 	switch s {
-	case Power:
+	case Electricity:
 		return "V"
 	case Gas:
 		return "W"
@@ -28,9 +29,10 @@ func (s Utility) Endpoint() string {
 	}
 }
 
+// String returns the string representation of Utility.
 func (s Utility) String() string {
 	switch s {
-	case Power, Gas, Water, S0:
+	case Electricity, Gas, Water, S0:
 		return string(s)
 	default:
 		panic(invalidUtility(s))
