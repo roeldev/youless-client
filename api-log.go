@@ -76,7 +76,7 @@ func (r LogResponse) TimeOfValue(i uint) time.Time {
 
 type TimedValue struct {
 	Time     time.Time
-	Value    uint64
+	Value    int64
 	Inactive bool
 }
 
@@ -84,7 +84,7 @@ func (tv TimedValue) String() string {
 	if tv.Inactive {
 		return "*"
 	}
-	return strconv.FormatUint(tv.Value, 10)
+	return strconv.FormatInt(tv.Value, 10)
 }
 
 func (r LogResponse) TimedValues() ([]TimedValue, error) {
@@ -93,7 +93,7 @@ func (r LogResponse) TimedValues() ([]TimedValue, error) {
 	end -= 1
 
 	dt := r.Interval.Duration()
-	tm, _ := time.Parse(ReportTimeLayout, r.Timestamp)
+	tm, _ := time.Parse(LogTimeLayout, r.Timestamp)
 
 	for i, v := range r.RawValues {
 		if i == end && v == "" {
@@ -109,7 +109,7 @@ func (r LogResponse) TimedValues() ([]TimedValue, error) {
 			continue
 		}
 
-		n, err := strconv.ParseUint(strings.TrimSpace(v), 10, 0)
+		n, err := strconv.ParseInt(strings.TrimSpace(v), 10, 0)
 		if err != nil {
 			return res, errors.WithStack(err)
 		}
