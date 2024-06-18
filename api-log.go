@@ -17,7 +17,7 @@ import (
 //goland:noinspection GoUnusedConst
 const (
 	Watt       Unit = "Watt"
-	KiloWatt   Unit = "kWh"
+	KWh        Unit = "kWh"
 	Liter      Unit = "L"
 	CubicMeter Unit = "m3"
 
