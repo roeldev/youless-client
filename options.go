@@ -33,6 +33,8 @@ func WithLogger(l Logger) Option {
 	}
 }
 
+func WithDefaultLogger() Option { return WithLogger(DefaultLogger()) }
+
 func WithTracer(t trace.Tracer) Option {
 	return func(c *Client) error {
 		c.tracer = t

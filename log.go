@@ -5,15 +5,35 @@
 package youless
 
 import (
+	"context"
+	"log"
 	"net/http"
-
-	"github.com/rs/zerolog"
-	"golang.org/x/net/context"
 )
 
 type Logger interface {
 	LogClientRequest(ctx context.Context, clientName, url string, shared bool)
 	LogFetchAuthCookie(clientName string, cookie http.Cookie)
+}
+
+const panicNilLog = "youless.NewLogger: log.Logger should not be nil"
+
+func NewLogger(l *log.Logger) Logger {
+	if l == nil {
+		panic(panicNilLog)
+	}
+	return &defaultLogger{l}
+}
+
+func DefaultLogger() Logger { return &defaultLogger{log.Default()} }
+
+type defaultLogger struct{ *log.Logger }
+
+func (l *defaultLogger) LogClientRequest(_ context.Context, name, url string, shared bool) {
+	l.Logger.Printf("client %s requesting %s (shared: %t)\n", name, url, shared)
+}
+
+func (l *defaultLogger) LogFetchAuthCookie(name string, cookie http.Cookie) {
+	l.Logger.Printf("client %s fetched auth cookie: %s\n", name, cookie.String())
 }
 
 func NopLogger() Logger { return new(nopLogger) }
@@ -23,24 +43,3 @@ type nopLogger struct{}
 func (nopLogger) LogClientRequest(_ context.Context, _, _ string, _ bool) {}
 
 func (nopLogger) LogFetchAuthCookie(_ string, _ http.Cookie) {}
-
-type clientLogger struct{ zl zerolog.Logger }
-
-func NewLogger(zl zerolog.Logger) Logger {
-	return &clientLogger{zl: zl}
-}
-
-func (l *clientLogger) LogClientRequest(_ context.Context, name, url string, shared bool) {
-	l.zl.Debug().
-		Str("client", name).
-		Str("url", url).
-		Bool("shared", shared).
-		Msg("client groupRequest")
-}
-
-func (l *clientLogger) LogFetchAuthCookie(name string, cookie http.Cookie) {
-	l.zl.Info().
-		Str("client", name).
-		Str("cookie", cookie.String()).
-		Msg("fetched auth cookie")
-}
