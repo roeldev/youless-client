@@ -5,7 +5,7 @@
 package youless
 
 import (
-	"golang.org/x/net/context"
+	"context"
 )
 
 // https://community.home-assistant.io/t/youless-sensors-for-detailed-information-per-phase/433419
@@ -34,11 +34,11 @@ type PhaseReadingResponse struct {
 	// (Vermogen L3).
 	Power3 int64 `json:"l3"`
 
-	// Voltage1 is the current voltage on phase 1 (Spanning L1).
+	// Voltage1 is the current measured voltage on phase 1 (Spanning L1).
 	Voltage1 float64 `json:"v1"`
-	// Voltage2 is the current voltage on phase 2 (Spanning L2).
+	// Voltage2 is the current measured voltage on phase 2 (Spanning L2).
 	Voltage2 float64 `json:"v2"`
-	// Voltage3 is the current voltage on phase 3 (Spanning L3).
+	// Voltage3 is the current measured voltage on phase 3 (Spanning L3).
 	Voltage3 float64 `json:"v3"`
 }
 
@@ -48,4 +48,37 @@ func (api *apiRequester) GetPhaseReading(ctx context.Context) (PhaseReadingRespo
 		return PhaseReadingResponse{}, err
 	}
 	return res, nil
+}
+
+type PhaseReading struct {
+	// Current is the current imported electricity current in Ampere.
+	Current float64 `json:"i1"`
+	// Power is the current imported electricity power in Watt.
+	Power int64 `json:"l1"`
+	// Voltage is the current measured voltage.
+	Voltage float64 `json:"v1"`
+}
+
+func (r PhaseReadingResponse) Phase1() PhaseReading {
+	return PhaseReading{
+		Current: r.Current1,
+		Power:   r.Power1,
+		Voltage: r.Voltage1,
+	}
+}
+
+func (r PhaseReadingResponse) Phase2() PhaseReading {
+	return PhaseReading{
+		Current: r.Current2,
+		Power:   r.Power2,
+		Voltage: r.Voltage2,
+	}
+}
+
+func (r PhaseReadingResponse) Phase3() PhaseReading {
+	return PhaseReading{
+		Current: r.Current3,
+		Power:   r.Power3,
+		Voltage: r.Voltage3,
+	}
 }
