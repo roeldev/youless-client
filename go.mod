@@ -3,7 +3,7 @@ module github.com/roeldev/youless-client
 go 1.21
 
 require (
-	github.com/go-pogo/errors v0.11.0
+	github.com/go-pogo/errors v0.11.1
 	github.com/stretchr/testify v1.9.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.52.0
 	go.opentelemetry.io/otel v1.27.0
