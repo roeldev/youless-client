@@ -6,12 +6,11 @@ package youless
 
 import (
 	"context"
-	"strconv"
 	"time"
 )
 
 // MeterReadingResponse is the response from the /e endpoint. It is a
-// translation of a P1 telegram, with addition values, to JSON.
+// translation of a P1 telegram, with additional values, to JSON.
 type MeterReadingResponse struct {
 	ElectricityReading
 	S0Reading
@@ -55,7 +54,7 @@ type S0Reading struct {
 }
 
 type GasReading struct {
-	// GasTimestamp is a timestamp in format YYMMDDHHmm of the last gas meter
+	// GasTimestamp is a timestamp in format "YYMMDDHHmm" of the last gas meter
 	// reading.
 	GasTimestamp uint64 `json:"gts"`
 	// GasTotal is the meter reading of delivered gas (in m3) to client.
@@ -63,7 +62,7 @@ type GasReading struct {
 }
 
 type WaterReading struct {
-	// WaterTimestamp is a timestamp in format YYMMDDHHmm of the last water
+	// WaterTimestamp is a timestamp in format "YYMMDDHHmm" of the last water
 	// meter reading.
 	WaterTimestamp uint64 `json:"wts"`
 	// WaterTotal is the meter reading of delivered water (in m3) to client.
@@ -80,15 +79,3 @@ func (api *apiRequester) GetMeterReading(ctx context.Context) (MeterReadingRespo
 
 func (r ElectricityReading) Time() time.Time { return time.Unix(r.Timestamp, 0) }
 func (r S0Reading) Time() time.Time          { return time.Unix(r.S0Timestamp, 0) }
-
-const DateTimeLayout = "0601021504"
-
-func (r GasReading) Time() time.Time {
-	t, _ := time.Parse(DateTimeLayout, strconv.FormatUint(r.GasTimestamp, 10))
-	return t
-}
-
-func (r WaterReading) Time() time.Time {
-	t, _ := time.Parse(DateTimeLayout, strconv.FormatUint(r.WaterTimestamp, 10))
-	return t
-}
