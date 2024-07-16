@@ -11,7 +11,7 @@ import (
 // API is the interface containing all available api calls to the YouLess
 // device.
 type API interface {
-	GetDevice(ctx context.Context) (DeviceResponse, error)
+	GetDeviceInfo(ctx context.Context) (DeviceInfoResponse, error)
 	GetMeterReading(ctx context.Context) (MeterReadingResponse, error)
 	GetPhaseReading(ctx context.Context) (PhaseReadingResponse, error)
 	GetLog(ctx context.Context, u Utility, i Interval, page uint) (LogResponse, error)

@@ -36,7 +36,7 @@ import "github.com/roeldev/youless-client"
 
 | Method            | Endpoint | Description                         |
 |-------------------|----------|-------------------------------------|
-| `GetDevice`       | /d       | Get device information              |
+| `GetDeviceInfo`   | /d       | Get device information              |
 | `GetMeterReading` | /e       | Get meter reading                   |
 | `GetPhaseReading` | /f       | Get phase reading                   |
 | `GetLog`          | /V       | Get report of `Electricity` utility |

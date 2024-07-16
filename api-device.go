@@ -8,14 +8,16 @@ import (
 	"context"
 )
 
-type DeviceResponse struct {
+type DeviceInfoResponse struct {
 	Model    string `json:"model"`
 	Firmware string `json:"fw"`
 	MAC      string `json:"mac"`
 }
 
-func (api *apiRequester) GetDevice(ctx context.Context) (DeviceResponse, error) {
-	var res DeviceResponse
-	err := api.Request(withFuncName(ctx, "GetDevice"), "d", &res)
-	return res, err
+func (api *apiRequester) GetDeviceInfo(ctx context.Context) (DeviceInfoResponse, error) {
+	var res DeviceInfoResponse
+	if err := api.Request(withFuncName(ctx, "GetDeviceInfo"), "d", &res); err != nil {
+		return res, err
+	}
+	return res, nil
 }
