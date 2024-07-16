@@ -15,6 +15,7 @@ type API interface {
 	GetMeterReading(ctx context.Context) (MeterReadingResponse, error)
 	GetPhaseReading(ctx context.Context) (PhaseReadingResponse, error)
 	GetLog(ctx context.Context, u Utility, i Interval, page uint) (LogResponse, error)
+	GetP1Telegram(ctx context.Context) (P1TelegramResponse, error)
 }
 
 // Requester requests and handles calls to a YouLess device.

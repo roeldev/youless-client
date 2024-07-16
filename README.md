@@ -39,6 +39,7 @@ import "github.com/roeldev/youless-client"
 | `GetDeviceInfo`   | /d       | Get device information              |
 | `GetMeterReading` | /e       | Get meter reading                   |
 | `GetPhaseReading` | /f       | Get phase reading                   |
+| `GetP1Telegram`   | /V?p=#   | Get P1 telegram                     | 
 | `GetLog`          | /V       | Get report of `Electricity` utility |
 |                   | /W       | Get report of `Gas` utility         |
 |                   | /K       | Get report of `Water` utility       |
