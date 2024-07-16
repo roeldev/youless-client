@@ -45,11 +45,12 @@ type PhaseReadingResponse struct {
 func (api *apiRequester) GetPhaseReading(ctx context.Context) (PhaseReadingResponse, error) {
 	var res PhaseReadingResponse
 	if err := api.Request(withFuncName(ctx, "GetPhaseReading"), "f", &res); err != nil {
-		return PhaseReadingResponse{}, err
+		return res, err
 	}
 	return res, nil
 }
 
+// PhaseReading contains the reading values of a single phase.
 type PhaseReading struct {
 	// Current is the current imported electricity current in Ampere.
 	Current float64
@@ -59,6 +60,12 @@ type PhaseReading struct {
 	Voltage float64
 }
 
+// InUse indicates if the phase is in use or not.
+func (r PhaseReading) InUse() bool {
+	return r.Current == 0 && r.Power == 0
+}
+
+// Phase1 returns a PhaseReading of phase 1.
 func (r PhaseReadingResponse) Phase1() PhaseReading {
 	return PhaseReading{
 		Current: r.Current1,
@@ -67,6 +74,7 @@ func (r PhaseReadingResponse) Phase1() PhaseReading {
 	}
 }
 
+// Phase2 returns a PhaseReading of phase 2.
 func (r PhaseReadingResponse) Phase2() PhaseReading {
 	return PhaseReading{
 		Current: r.Current2,
@@ -75,6 +83,7 @@ func (r PhaseReadingResponse) Phase2() PhaseReading {
 	}
 }
 
+// Phase3 returns a PhaseReading of phase 3.
 func (r PhaseReadingResponse) Phase3() PhaseReading {
 	return PhaseReading{
 		Current: r.Current3,
