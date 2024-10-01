@@ -77,5 +77,8 @@ func (api *apiRequester) GetMeterReading(ctx context.Context) (MeterReadingRespo
 	return res[0], nil
 }
 
+// Time returns Timestamp as time.Time.
 func (r ElectricityReading) Time() time.Time { return time.Unix(r.Timestamp, 0) }
-func (r S0Reading) Time() time.Time          { return time.Unix(r.S0Timestamp, 0) }
+
+// Time returns S0Timestamp as time.Time.
+func (r S0Reading) Time() time.Time { return time.Unix(r.S0Timestamp, 0) }
