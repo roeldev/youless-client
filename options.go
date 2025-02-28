@@ -26,7 +26,12 @@ func WithHTTPClient(client http.Client) Option {
 	}
 }
 
+const panicNilLogger = "youless.WithLogger: Logger should not be nil"
+
 func WithLogger(l Logger) Option {
+	if l == nil {
+		panic(panicNilLogger)
+	}
 	return func(c *Client) error {
 		c.log = l
 		return nil
