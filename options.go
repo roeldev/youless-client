@@ -49,14 +49,18 @@ func WithTracer(t trace.Tracer) Option {
 
 const TracerName string = "youless-client"
 
-// WithTracerProvider sets a new tracer for the client from the specified
-// tracer provider.
-func WithTracerProvider(tp trace.TracerProvider) Option {
+// WithTracerProvider sets a new tracer for [Client] from the specified
+// [trace.TracerProvider].
+func WithTracerProvider(prov trace.TracerProvider) Option {
+	if prov == nil {
+		return nil
+	}
+
 	return func(c *Client) error {
-		c.tracer = tp.Tracer(TracerName)
+		c.tracer = prov.Tracer(TracerName)
 		c.client.Transport = otelhttp.NewTransport(
 			c.client.Transport,
-			otelhttp.WithTracerProvider(tp),
+			otelhttp.WithTracerProvider(prov),
 			otelhttp.WithSpanNameFormatter(func(_ string, req *http.Request) string {
 				return req.Method + " " + req.URL.Path
 			}),
