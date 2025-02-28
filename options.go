@@ -17,7 +17,7 @@ const ErrApplyOption errors.Msg = "failed to apply option"
 
 type Option func(c *Client) error
 
-// WithHTTPClient sets the underlying http.Client for the client.
+// WithHTTPClient sets the underlying [http.Client] for [Client].
 func WithHTTPClient(client http.Client) Option {
 	return func(c *Client) error {
 		c.client = client
